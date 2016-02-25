@@ -1,7 +1,7 @@
-/* 
+/*
  * The MIT License
  *
- * Copyright 2015 Simon Berndt.
+ * Copyright 2016 Simon Berndt.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,34 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package libSB.fx.binding;
-
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
+package libSB.fx.binding.api;
 
 /**
  *
  * @author Simon Berndt
  */
-final class TransferListener<T> implements InvalidationListener {
-
-    private final Supplier<? extends T> o1Getter;
-    private final Consumer<? super T> o2Setter;
-
-    TransferListener(Supplier<? extends T> o1Getter, Consumer<? super T> o2Setter) {
-	this.o1Getter = o1Getter;
-	this.o2Setter = o2Setter;
-    }
-
-    @Override
-    public void invalidated(Observable observable) {
-	transfer();
-    }
-
-    void transfer() {
-        this.o2Setter.accept(this.o1Getter.get());
-    }
-
+public interface UniDirectionalBindingHandle extends BindingHandle {
+    
+    void initialTransferO1ToO2();
+    
 }

@@ -21,50 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package libSB.fx.panes;
+package libSB.fx.binding.listener;
 
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 
 /**
  *
  * @author Simon Berndt
  */
-public class ImageContainerPane extends BorderPane {
+public final class MappingTransferListener<S, T> implements InvalidationListener {
 
-    protected final ImageView wrappedImageView;
+    private final Supplier<? extends S> o1Getter;
+    private final Function<? super S, ? extends T> converter;
+    private final Consumer<? super T> o2Setter;
 
-    public ImageContainerPane() {
-        this(true, true);
-    }
-
-    public ImageContainerPane(boolean preserveRatio, boolean smooth) {
-        this.wrappedImageView = new ImageView();
-        setCenter(this.wrappedImageView);
-        BorderPane.setMargin(this.wrappedImageView, new Insets(0.0));
-        BorderPane.setAlignment(this.wrappedImageView, Pos.CENTER);
-
-        this.wrappedImageView.fitWidthProperty().bind(widthProperty());
-        this.wrappedImageView.fitHeightProperty().bind(heightProperty());
-
-        this.wrappedImageView.setPreserveRatio(true);
-        this.wrappedImageView.setSmooth(true);
-    }
-
-    public ImageView getWrappedImageView() {
-        return this.wrappedImageView;
+    public MappingTransferListener(Supplier<? extends S> o1Getter, Function<? super S, ? extends T> converter, Consumer<? super T> o2Setter) {
+	this.o1Getter = o1Getter;
+	this.converter = converter;
+	this.o2Setter = o2Setter;
     }
 
     @Override
-    protected double computeMinHeight(double width) {
-        return 0;
+    public void invalidated(Observable observable) {
+	transfer();
     }
 
-    @Override
-    protected double computeMinWidth(double height) {
-        return 0;
+    public void transfer() {
+        this.o2Setter.accept(this.converter.apply(this.o1Getter.get()));
     }
 
 }

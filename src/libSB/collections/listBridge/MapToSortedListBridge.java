@@ -36,26 +36,26 @@ import javafx.collections.transformation.SortedList;
  */
 public class MapToSortedListBridge<E, T> implements ListBridge<T> {
 
-    private final ObservableList<T> readOnlyList;
+    private final SortedList<T> readOnlyList;
 
     public MapToSortedListBridge(ObservableMap<E, T> backgroundMap, Comparator<T> comparator) {
-	final ObservableList<T> reflectedList = FXCollections.observableArrayList(backgroundMap.values());
+        final ObservableList<T> reflectedList = FXCollections.observableArrayList(backgroundMap.values());
 
-	backgroundMap.addListener((MapChangeListener.Change<? extends E, ? extends T> change) -> {
-	    if (change.wasAdded()) {
-		reflectedList.add(change.getValueAdded());
-	    }
-	    if (change.wasRemoved()) {
-		reflectedList.remove(change.getValueRemoved());
-	    }
-	});
+        backgroundMap.addListener((MapChangeListener.Change<? extends E, ? extends T> change) -> {
+            if (change.wasAdded()) {
+                reflectedList.add(change.getValueAdded());
+            }
+            if (change.wasRemoved()) {
+                reflectedList.remove(change.getValueRemoved());
+            }
+        });
 
-	    this.readOnlyList = FXCollections.unmodifiableObservableList(new SortedList<>(reflectedList, comparator));
+        this.readOnlyList = new SortedList<>(reflectedList, comparator);
     }
 
     @Override
-    public ObservableList<T> asList() {
-	return this.readOnlyList;
+    public SortedList<T> asList() {
+        return this.readOnlyList;
     }
 
 }

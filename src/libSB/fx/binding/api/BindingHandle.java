@@ -1,7 +1,7 @@
-/* 
+/*
  * The MIT License
  *
- * Copyright 2015 Simon Berndt.
+ * Copyright 2016 Simon Berndt.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,19 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package libSB.fx.annotations;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package libSB.fx.binding.api;
 
 /**
  *
  * @author Simon Berndt
  */
-@Retention(value = RetentionPolicy.SOURCE)
-@Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
-public @interface UsesGraphicCalls {
-
+public interface BindingHandle {
+    
+    void bind();
+    
+    void unbind();
+    
 }

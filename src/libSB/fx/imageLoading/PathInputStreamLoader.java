@@ -26,6 +26,9 @@ package libSB.fx.imageLoading;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
@@ -36,24 +39,24 @@ import javafx.scene.image.Image;
  *
  * @author Simon Berndt
  */
-public abstract class InputStreamLoader implements ImageLoader<InputStream> {
+public abstract class PathInputStreamLoader implements ImageLoader<Path> {
     
-    private static final Logger LOG = Logger.getLogger(InputStreamLoader.class.getName());
+    private static final Logger LOG = Logger.getLogger(PathInputStreamLoader.class.getName());
     
     private static final int BUFFER_SIZE = 8 * 1024;
     
     protected final Executor executor;
 
-    protected InputStreamLoader(Executor executor) {
+    protected PathInputStreamLoader(Executor executor) {
 	this.executor = executor;
     }
     
     @Override
-    public CompletableFuture<Image> loadAsync(InputStream source) {
-	return CompletableFuture.supplyAsync(() -> load(source), this.executor);
+    public CompletableFuture<Image> loadAsync(Path path) {
+	return CompletableFuture.supplyAsync(() -> load(path), this.executor);
     }
 
-    public static class BoundedResolution extends InputStreamLoader {
+    public static class BoundedResolution extends PathInputStreamLoader {
 
 	private final double maxWidth;
 	private final double maxHeight;
@@ -69,8 +72,8 @@ public abstract class InputStreamLoader implements ImageLoader<InputStream> {
 	}
 
 	@Override
-	public Image load(InputStream source) {
-	    try (final InputStream in = new BufferedInputStream(source, BUFFER_SIZE)) {
+	public Image load(Path path) {
+	    try (final InputStream in = new BufferedInputStream(Files.newInputStream(path, StandardOpenOption.READ), BUFFER_SIZE)) {
 		return new Image(in, this.maxWidth, this.maxHeight, preserveRatio, smooth);
 	    } catch (final IOException ex) {
 		LOG.log(Level.INFO, null, ex);
@@ -80,15 +83,15 @@ public abstract class InputStreamLoader implements ImageLoader<InputStream> {
 
     }
 
-    public static class FullResolution extends InputStreamLoader {
+    public static class FullResolution extends PathInputStreamLoader {
 
 	public FullResolution(Executor executor) {
 	    super(executor);
 	}
 
 	@Override
-	public Image load(InputStream source) {
-	    try (final InputStream in = new BufferedInputStream(source, BUFFER_SIZE)) {
+	public Image load(Path path) {
+	    try (final InputStream in = new BufferedInputStream(Files.newInputStream(path, StandardOpenOption.READ), BUFFER_SIZE)) {
 		return new Image(in);
 	    } catch (final IOException ex) {
 		LOG.log(Level.INFO, null, ex);

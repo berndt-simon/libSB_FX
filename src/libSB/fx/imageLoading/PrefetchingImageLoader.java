@@ -23,21 +23,23 @@
  */
 package libSB.fx.imageLoading;
 
-import java.nio.file.Path;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  *
  * @author Simon Berndt
  */
-public interface PrefetchingImageLoader extends ImageLoader {
+public interface PrefetchingImageLoader<S> extends ImageLoader<S> {
 
-    default void prefetch(Path path) {
-	// NOP;
+    void prefetch(S source);
+
+    default void prefetch(Stream<? extends S> paths) {
+        paths.forEach(this::prefetch);
     }
-    
-    default void prefetch(Stream<Path> path) {
-	// NOP;
+
+    default void prefetch(Iterable<? extends S> paths) {
+        StreamSupport.stream(paths.spliterator(), false).forEach(this::prefetch);
     }
 
 }

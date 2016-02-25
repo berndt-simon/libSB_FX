@@ -23,7 +23,6 @@
  */
 package libSB.fx.imageLoading;
 
-import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import javafx.scene.image.Image;
 
@@ -31,9 +30,9 @@ import javafx.scene.image.Image;
  *
  * @author Simon Berndt
  */
-public interface ImageLoader {
+public interface ImageLoader<S> {
 
-    Image load(Path path);
-    CompletableFuture<Image> loadAsync(Path path);
+    Image load(S source);
+    CompletableFuture<Image> loadAsync(S source);
 
 }

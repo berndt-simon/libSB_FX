@@ -1,4 +1,4 @@
-/* 
+/*
  * The MIT License
  *
  * Copyright 2015 Simon Berndt.
@@ -21,37 +21,40 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package libSB.fx.binding;
+package libSB.fx.pollService;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
+import javafx.application.Platform;
+import javafx.beans.value.WritableValue;
 
 /**
  *
  * @author Simon Berndt
  */
-final class MappingTransferListener<S, T> implements InvalidationListener {
+public class PollingJob<T> implements Runnable {
 
-    private final Supplier<? extends S> o1Getter;
-    private final Function<? super S, ? extends T> converter;
-    private final Consumer<? super T> o2Setter;
+    private final Supplier<? extends T> getter;
+    private final Consumer<? super T> setter;
 
-    MappingTransferListener(Supplier<? extends S> o1Getter, Function<? super S, ? extends T> converter, Consumer<? super T> o2Setter) {
-	this.o1Getter = o1Getter;
-	this.converter = converter;
-	this.o2Setter = o2Setter;
+    public PollingJob(Supplier<? extends T> getter, Consumer<? super T> setter) {
+        this.getter = getter;
+        this.setter = setter;
+    }
+    
+    public PollingJob(Supplier<? extends T> getter, WritableValue<? super T> value) {
+        this.getter = getter;
+        this.setter = value::setValue;
     }
 
     @Override
-    public void invalidated(Observable observable) {
-	transfer();
-    }
-
-    void transfer() {
-        this.o2Setter.accept(this.converter.apply(this.o1Getter.get()));
+    public void run() {
+        final T t = getter.get();
+        if (Platform.isFxApplicationThread()) {
+            setter.accept(t);
+        } else {
+            Platform.runLater(() -> setter.accept(t));
+        }
     }
 
 }

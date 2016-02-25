@@ -29,6 +29,12 @@ import java.util.function.Supplier;
 import javafx.beans.Observable;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
+import libSB.fx.binding.api.BiDirectionalBindingHandle;
+import libSB.fx.binding.api.UniDirectionalBindingHandle;
+import libSB.fx.binding.biDirectional.BiDirectionalBinding;
+import libSB.fx.binding.biDirectional.BiDirectionalMappingBinding;
+import libSB.fx.binding.uniDirectional.UniDirectionalBinding;
+import libSB.fx.binding.uniDirectional.UniDirectionalMappingBinding;
 
 /**
  *
@@ -39,64 +45,76 @@ public final class BindingUtil {
     private BindingUtil() {
     }
 
-    public static <T> BiDirectionalBinding<T> createBiDirectionalBinding(
+    public static <T> BiDirectionalBindingHandle createBiDirectionalBinding(
 	    Observable o1, Supplier<? extends T> o1Getter, Consumer<? super T> o1Setter,
 	    Observable o2, Supplier<? extends T> o2Getter, Consumer<? super T> o2Setter) {
 	return new BiDirectionalBinding<>(o1, o1Getter, o1Setter, o2, o2Getter, o2Setter);
     }
     
-    public static <T> BiDirectionalBinding<T> createBiDirectionalBinding(
+    public static <T> BiDirectionalBindingHandle createBiDirectionalBinding(
 	    Property<T> o1, Observable o2, Supplier<? extends T> o2Getter, Consumer<? super T> o2Setter) {
 	return new BiDirectionalBinding<>(o1, o2, o2Getter, o2Setter);
     }
     
-    public static <T> BiDirectionalBinding<T> createBiDirectionalBinding(
+    public static <T> BiDirectionalBindingHandle createBiDirectionalBinding(
 	    Observable o1, Supplier<? extends T> o1Getter, Consumer<? super T> o1Setter, Property<T> o2) {
 	return new BiDirectionalBinding<>(o1, o1Getter, o1Setter, o2);
     }
 
-    public static <T1, T2> BiDirectionalMappingBinding<T1, T2> createBiDirectionalMappingBinding(
+    public static <T1, T2> BiDirectionalBindingHandle createBiDirectionalMappingBinding(
 	    Observable o1, Supplier<? extends T1> o1Getter, Function<? super T1, ? extends T2> o1ToO2Converter, Consumer<? super T1> o1Setter,
 	    Observable o2, Supplier<? extends T2> o2Getter, Function<? super T2, ? extends T1> o2ToO1Converter, Consumer<? super T2> o2Setter) {
 	return new BiDirectionalMappingBinding<>(o1, o1Getter, o1ToO2Converter, o1Setter, o2, o2Getter, o2ToO1Converter, o2Setter);
     }
     
-    public static <T1, T2> BiDirectionalMappingBinding<T1, T2> createBiDirectionalMappingBinding(
+    public static <T1, T2> BiDirectionalBindingHandle createBiDirectionalMappingBinding(
 	    Property<T1> o1, Function<? super T1, ? extends T2> o1ToO2Converter,
 	    Observable o2, Supplier<? extends T2> o2Getter, Function<? super T2, ? extends T1> o2ToO1Converter, Consumer<? super T2> o2Setter) {
 	return new BiDirectionalMappingBinding<>(o1, o1ToO2Converter, o2, o2Getter, o2ToO1Converter, o2Setter);
     }
     
-    public static <T1, T2> BiDirectionalMappingBinding<T1, T2> createBiDirectionalMappingBinding(
+    public static <T1, T2> BiDirectionalBindingHandle createBiDirectionalMappingBinding(
 	    Observable o1, Supplier<? extends T1> o1Getter, Function<? super T1, ? extends T2> o1ToO2Converter, Consumer<? super T1> o1Setter,
 	    Property<T2> o2, Function<? super T2, ? extends T1> o2ToO1Converter) {
 	return new BiDirectionalMappingBinding<>(o1, o1Getter, o1ToO2Converter, o1Setter, o2, o2ToO1Converter);
     }
     
-    public static <T1, T2> BiDirectionalMappingBinding<T1, T2> createBiDirectionalMappingBinding(
+    public static <T1, T2> BiDirectionalBindingHandle createBiDirectionalMappingBinding(
 	    Property<T1> o1, Function<? super T1, ? extends T2> o1ToO2Converter,
 	    Property<T2> o2, Function<? super T2, ? extends T1> o2ToO1Converter) {
 	return new BiDirectionalMappingBinding<>(o1, o1ToO2Converter, o2, o2ToO1Converter);
     }
 
-    public static <T> UniDirectionalBinding<T> createBinding(
+    public static <T> UniDirectionalBindingHandle createBinding(
 	    Observable o1, Supplier<? extends T> o1Getter, Consumer<? super T> o2Setter) {
 	return new UniDirectionalBinding<>(o1, o1Getter, o2Setter);
     }
     
-    public static <T> UniDirectionalBinding<T> createBinding(
+    public static <T> UniDirectionalBindingHandle createBinding(
 	    ReadOnlyProperty<T> o1, Consumer<? super T> o2Setter) {
 	return new UniDirectionalBinding<>(o1, o2Setter);
     }
 
-    public static <T1, T2> UniDirectionalMappingBinding<T1, T2> createMappingBinding(
+    public static <T1, T2> UniDirectionalBindingHandle createMappingBinding(
 	    Observable o1, Supplier<? extends T1> o1Getter, Function<? super T1, ? extends T2> o1ToO2Converter, Consumer<? super T2> o2Setter) {
 	return new UniDirectionalMappingBinding<>(o1, o1Getter, o1ToO2Converter, o2Setter);
     }
     
-    public static <T1, T2> UniDirectionalMappingBinding<T1, T2> createMappingBinding(
+    public static <T1, T2> UniDirectionalBindingHandle createMappingBinding(
 	    ReadOnlyProperty<T1> o1, Function<? super T1, ? extends T2> o1ToO2Converter, Consumer<? super T2> o2Setter) {
 	return new UniDirectionalMappingBinding<>(o1, o1ToO2Converter, o2Setter);
+    }
+    
+    public static UniDirectionalBindingHandle initAndBind(UniDirectionalBindingHandle binding) {
+        binding.initialTransferO1ToO2();
+        binding.bind();
+        return binding;
+    }
+    
+    public static BiDirectionalBindingHandle initReversedAndBind(BiDirectionalBindingHandle binding) {
+        binding.initialTransferO2ToO1();
+        binding.bind();
+        return binding;
     }
 
 }

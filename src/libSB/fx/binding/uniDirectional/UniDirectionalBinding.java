@@ -21,50 +21,47 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package libSB.fx.panes;
+package libSB.fx.binding.uniDirectional;
 
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+import javafx.beans.Observable;
+import javafx.beans.property.ReadOnlyProperty;
+import libSB.fx.binding.api.UniDirectionalBindingHandle;
+import libSB.fx.binding.listener.TransferListener;
 
 /**
  *
  * @author Simon Berndt
  */
-public class ImageContainerPane extends BorderPane {
+public final class UniDirectionalBinding<T> implements UniDirectionalBindingHandle {
 
-    protected final ImageView wrappedImageView;
+    private final Observable o1;
+    private final TransferListener<T> o1ToO2;
 
-    public ImageContainerPane() {
-        this(true, true);
+    public UniDirectionalBinding(Observable o1, Supplier<? extends T> o1Getter, Consumer<? super T> o2Setter) {
+	this.o1 = o1;
+        this.o1ToO2 = new TransferListener<>(o1Getter, o2Setter);
     }
-
-    public ImageContainerPane(boolean preserveRatio, boolean smooth) {
-        this.wrappedImageView = new ImageView();
-        setCenter(this.wrappedImageView);
-        BorderPane.setMargin(this.wrappedImageView, new Insets(0.0));
-        BorderPane.setAlignment(this.wrappedImageView, Pos.CENTER);
-
-        this.wrappedImageView.fitWidthProperty().bind(widthProperty());
-        this.wrappedImageView.fitHeightProperty().bind(heightProperty());
-
-        this.wrappedImageView.setPreserveRatio(true);
-        this.wrappedImageView.setSmooth(true);
-    }
-
-    public ImageView getWrappedImageView() {
-        return this.wrappedImageView;
+    
+    public UniDirectionalBinding(ReadOnlyProperty<T> o1, Consumer<? super T> o2Setter) {
+	this.o1 = o1;
+        this.o1ToO2 = new TransferListener<>(o1::getValue, o2Setter);
     }
 
     @Override
-    protected double computeMinHeight(double width) {
-        return 0;
+    public void bind() {
+        this.o1.addListener(this.o1ToO2);
     }
 
     @Override
-    protected double computeMinWidth(double height) {
-        return 0;
+    public void unbind() {
+        this.o1.removeListener(this.o1ToO2);
+    }
+
+    @Override
+    public void initialTransferO1ToO2() {
+        this.o1ToO2.transfer();
     }
 
 }

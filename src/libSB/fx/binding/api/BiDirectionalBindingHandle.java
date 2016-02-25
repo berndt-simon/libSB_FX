@@ -1,7 +1,7 @@
-/* 
+/*
  * The MIT License
  *
- * Copyright 2015 Simon Berndt.
+ * Copyright 2016 Simon Berndt.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,41 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package libSB.collections.listBridge;
-
-import java.util.Comparator;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableSet;
-import javafx.collections.SetChangeListener;
-import javafx.collections.transformation.SortedList;
+package libSB.fx.binding.api;
 
 /**
  *
  * @author Simon Berndt
  */
-public class SetToSortedListBridge<T> implements ListBridge<T> {
+public interface BiDirectionalBindingHandle extends UniDirectionalBindingHandle {
 
-    private final SortedList<T> readOnlyList;
-
-    public SetToSortedListBridge(ObservableSet<T> backgroundSet, Comparator<T> comparator) {
-        final ObservableList<T> reflectedList = FXCollections.observableArrayList(backgroundSet);
-
-        backgroundSet.addListener((SetChangeListener.Change<? extends T> change) -> {
-            if (change.wasRemoved()) {
-                reflectedList.remove(change.getElementRemoved());
-            }
-            if (change.wasAdded()) {
-                reflectedList.add(change.getElementAdded());
-            }
-        });
-
-        this.readOnlyList = new SortedList<>(reflectedList, comparator);
-    }
-
-    @Override
-    public SortedList<T> asList() {
-        return this.readOnlyList;
-    }
+    void initialTransferO2ToO1();
 
 }

@@ -21,42 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package libSB.fx.binding;
+package libSB.fx.binding.listener;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
-import javafx.beans.property.ReadOnlyProperty;
 
 /**
  *
  * @author Simon Berndt
  */
-public final class UniDirectionalBinding<T> {
+public final class TransferListener<T> implements InvalidationListener {
 
-    private final Observable o1;
-    private final TransferListener<T> o1ToO2;
+    private final Supplier<? extends T> o1Getter;
+    private final Consumer<? super T> o2Setter;
 
-    UniDirectionalBinding(Observable o1, Supplier<? extends T> o1Getter, Consumer<? super T> o2Setter) {
-	this.o1 = o1;
-        this.o1ToO2 = new TransferListener<>(o1Getter, o2Setter);
-    }
-    
-    UniDirectionalBinding(ReadOnlyProperty<T> o1, Consumer<? super T> o2Setter) {
-	this.o1 = o1;
-        this.o1ToO2 = new TransferListener<>(o1::getValue, o2Setter);
+    public TransferListener(Supplier<? extends T> o1Getter, Consumer<? super T> o2Setter) {
+	this.o1Getter = o1Getter;
+	this.o2Setter = o2Setter;
     }
 
-    public void bind() {
-        this.o1.addListener(this.o1ToO2);
+    @Override
+    public void invalidated(Observable observable) {
+	transfer();
     }
 
-    public void unBind() {
-        this.o1.removeListener(this.o1ToO2);
-    }
-
-    public void initialTransferO1ToO2() {
-        this.o1ToO2.transfer();
+    public void transfer() {
+        this.o2Setter.accept(this.o1Getter.get());
     }
 
 }
