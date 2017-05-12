@@ -76,7 +76,7 @@ public enum SystemStatus {
         this.systemLoadAverage = new SimpleDoubleProperty(this, "systemLoadAverage", 0);
         this.heapMemoryUsed = new SimpleLongProperty(this, "heapMemoryUsed", 0);
         this.heapMemoryCommited = new SimpleLongProperty(this, "heapMemoryComitted", 0);
-        this.ofHeapMemoryUsed = new SimpleLongProperty(this, "ofHeapMemoryUsed", 0);
+        this.ofHeapMemoryUsed = new SimpleLongProperty(this, "nonHeapMemoryUsed", 0);
 
         final MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 

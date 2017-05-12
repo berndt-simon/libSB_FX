@@ -50,6 +50,7 @@ public enum FullscreenToolkit {
         final FullscreenStage<N> stage = new FullscreenStage<>(aNode);
         final CompletableFuture<N> promise = new CompletableFuture<>();
         stage.addEventHandler(WindowEvent.WINDOW_HIDING, (Event event) -> promise.complete(aNode));
+        stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, (Event event) -> promise.complete(aNode));
         stage.fullScreenProperty().addListener((Observable o) -> {
             if (!stage.isFullScreen()) {
                 promise.complete(aNode);
@@ -57,7 +58,7 @@ public enum FullscreenToolkit {
         });
         stage.show();
         stage.setFullScreen(true);
-        CompletableFuture<N> nodeReleased = promise.thenApply((N node) -> {
+        final CompletableFuture<N> nodeReleased = promise.thenApply((N node) -> {
             stage.releaseResources();
             return node;
         });
